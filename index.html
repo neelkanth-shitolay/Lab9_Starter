@@ -62,12 +62,12 @@
           <option>/</option>
         </select>
         <input name="second-num" id="second-num" />
-        <button id="calculate">Calculate</button>
+        <button type='submit' id="calculate">Calculate</button>
         <br />
         <output></output>
       </fieldset>
     </form>
-
+    <button id="dirxml">dirxml button</button>
     <section id="error-btns">
       <button>Console Log</button>
       <button>Console Error</button>
@@ -88,6 +88,14 @@
   </main>
 
   <script>
+    // Custom Error class
+    class NonNumericInputError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = 'NonNumericInputError';
+      }
+    }
+
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -95,14 +103,107 @@
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
+      // step 3
+      try{
+        if (isNaN(firstNum) || isNaN(secondNum)) {
+          throw new NonNumericInputError('Both inputs must be numeric');
+        }
+        if((secondNum === '0') && (operator === '/')){
+          throw new Error('division by 0 not possible');
+        }
+      } catch(error){
+          console.error(error);
+      } finally{
+          console.log('done');
+      }
+
       output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
 
-    // Start your code here
-    // You may move this JS to another file if you wish
+
+    errorBtns.forEach(button => {
+      button.addEventListener('click', () => {
+        const buttonType = button.textContent.trim();
+        switch(buttonType){
+          case 'Console Log':
+            const out = document.querySelector('output');
+            console.log("The output is: ", out.innerHTML);
+            break;
+          case 'Console Error': 
+            console.error("Error message");
+            break;
+          case 'Console Count':
+            console.count(form.elements.length);
+            break;
+          case 'Console Warn':
+            console.warn("Warn message");
+            break;
+          case 'Console Assert':
+            const message = "modulo is not 1";
+            for(let i = 0; i <= 5; i++){
+              console.assert(i % 3 == 1, "%o", {i, message});
+            }
+            break;
+          case 'Console Clear':
+            console.clear();
+            break;
+          case 'Console Dir':
+            const buttonOne = document.getElementById('calculate');
+            console.dir(buttonOne);
+            break;
+          case 'Console dirxml':
+            const xmlbutton = document.getElementById('dirxml');
+            console.dirxml(xmlbutton);
+            break;
+          case 'Console Group Start': 
+            console.group();
+            break;
+          case 'Console Group End':
+            console.groupEnd();
+            break;
+          case 'Console Table':
+            console.table(["advaith", "ucsd", "cse110"]);
+            break;
+          case 'Start Timer':
+            console.time();
+            break;
+          case 'End Timer':
+            console.timeEnd();
+            break;
+          case 'Console Trace':
+            function one(){
+              function two(){
+                console.trace();
+              }
+              two();
+            }
+            one();
+            break;
+            case 'Trigger a Global Error':
+            nonExistentFunction();
+            break;
+        }
+      })
+    })
+     window.onerror = function (message, source, lineno, colno, error) {
+      console.log("An Error was thrown")
+
+      if (window.TrackJS) {
+        TrackJS.track(message);
+      }
+
+      return true;
+    };
   </script>
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "33020a7ec7ae46f78bc856abc22ce8a4"
+    });
+  </script>
+                          
 </body>
 
 </html>
